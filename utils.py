@@ -2,7 +2,7 @@ from requests import Session
 from bs4 import BeautifulSoup as bs
 
 
-def getLogin(username, password):
+def get_login(username, password):
     with Session() as session:
         site = session.get("https://m.klikbca.com/login.jsp")
         bs_content = bs(site.content, "html.parser")
@@ -20,7 +20,7 @@ def getLogin(username, password):
             'value(browser_info)':browser_info,
             'mobile':'true'
         }
-        authenticate=session.post('https://m.klikbca.com/authentication.do', data=login_data, headers=headers)
+        authenticate = session.post('https://m.klikbca.com/authentication.do', data=login_data, headers=headers)
         authenticated_page = bs(authenticate.content, 'html.parser')
         try:
             welcome_word = authenticated_page.findAll('font')
@@ -30,20 +30,19 @@ def getLogin(username, password):
         return session, welcome_word
 
 
-def getSaldo(session):
-    saldo = session.post('https://m.klikbca.com/balanceinquiry.do')
-    print saldo.content
-    dict = {}
+def get_balance_information(session):
+    balance_information = session.post('https://m.klikbca.com/balanceinquiry.do')
+    dict_balance = {}
     try:
-        soup = bs(saldo.content, 'html.parser')
-        table_saldo = soup.findAll('font')
-        for td in table_saldo:
+        soup = bs(balance_information.content, 'html.parser')
+        balance_information_table = soup.findAll('font')
+        for td in balance_information_table:
             if td.text == 'REKENING':
-                dict['No Rekening']=str(table_saldo[4].text)
+                dict_balance['No Rekening']=str(balance_information_table[4].text)
             elif td.text == 'SALDO EFEKTIF':
-                dict['Sisa Saldo']=str(table_saldo[6].text)
+                dict_balance['Sisa Saldo']=str(balance_information_table[6].text)
 
     except Exception as e:
         # todo: return proper message
         pass
-    return dict
+    return dict_balance

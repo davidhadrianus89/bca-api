@@ -11,7 +11,7 @@ def bcaApi():
 
 
 @app.route('/api-bca/saldo', methods=['POST'])
-def bcaApiSaldo():
+def bca_balance_api():
     """
         params : username & password
         :return:
@@ -26,25 +26,24 @@ def bcaApiSaldo():
         if not password:
             return jsonify({"msg": "Missing password parameter"}), 400
 
-        login = getLogin(username, password)
+        login = get_login(username, password)
         if len(login[1])>0:
             session = login[0]
-            saldo = getSaldo(session)
+            balance_information = get_balance_information(session)
             try:
-                if len(saldo) <1:
+                if len(balance_information) <1:
                     return jsonify({'detail':'Something wrong, please try 5 minutes later'})
-                return jsonify({'Info rekening anda':saldo})
+                return jsonify({'Info rekening anda':balance_information})
             except:
                 pass
             session.post('https://m.klikbca.com/authentication.do?value(actions)=logout')
         return jsonify({'detail': "Wrong Login Information"})
 
-
     return jsonify({"msg": "Not valid request"})
 
 
 @app.route('/api-bca/transaksi', methods=['POST'])
-def bcaApiTransaksi():
+def bca_api_transaction():
     """
     params : username & password
     :return:
