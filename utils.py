@@ -121,8 +121,3 @@ def get_mutation_information(session, headers):
         pass
     return account_info_dict, mutation_summary_dict
 
-
-
-session = get_login('davidhad1010', '088919')
-print get_mutation_information(session[0], session[2])
-session[0].post('https://m.klikbca.com/authentication.do?value(actions)=logout')
