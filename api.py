@@ -68,7 +68,7 @@ def bca_api_transaction():
                                 {'Info rekening anda':
                                      {
                                          'Informasi_saldo':statement_history[0],
-                                         'ringkasan_mutas': statement_history[1]
+                                         'Ringkasan_mutasi': statement_history[1]
                                      }
                                 }
                            )
