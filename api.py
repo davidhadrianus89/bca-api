@@ -49,7 +49,33 @@ def bca_api_transaction():
     :return:
     last 30 days transaction in json format
     """
-    return 'Check Transaksi'
+    username = request.json.get('username', None)
+    password = request.json.get('password', None)
+    if not username:
+        return jsonify({"msg": "Missing username parameter"}), 400
+    if not password:
+        return jsonify({"msg": "Missing password parameter"}), 400
+
+    login = get_login(username, password)
+    if len(login[1]) > 0:
+        session = login[0]
+        headers = login[2]
+        statement_history = get_mutation_information(session, headers)
+        try:
+            if len(statement_history[1]) < 1:
+                return jsonify({'detail': 'Something wrong, please try 5 minutes later'})
+            return jsonify(
+                                {'Info rekening anda':
+                                     {
+                                         'Informasi_saldo':statement_history[0],
+                                         'ringkasan_mutas': statement_history[1]
+                                     }
+                                }
+                           )
+        except:
+            pass
+        session.post('https://m.klikbca.com/authentication.do?value(actions)=logout')
+    return jsonify({'detail': "Wrong Login Information"})
 
 
 if __name__ == '__main__':
