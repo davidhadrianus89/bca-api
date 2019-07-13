@@ -67,8 +67,9 @@ def bca_api_transaction():
             return jsonify(
                                 {'Info rekening anda':
                                      {
-                                         'Informasi_saldo':statement_history[0],
-                                         'Ringkasan_mutasi': statement_history[1]
+                                         'Informasi Saldo':statement_history[0],
+                                         'Transaksi Mutasi Rekening': statement_history[1],
+                                         'Ringkasan Mutasi': statement_history[2]
                                      }
                                 }
                            )

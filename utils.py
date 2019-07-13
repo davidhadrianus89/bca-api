@@ -12,6 +12,7 @@ def get_login(username, password):
         user_ip = bs_content.find("input", {"name": "user_ip"})["value"]
         browser_info = bs_content.find("input", {"name": "value(browser_info)"})["value"]
         headers = site.request.headers
+        headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/75.0.3770.90 Chrome/75.0.3770.90 Safari/537.36'
         login_data = {
             'value(user_id)':username,
             'value(pswd)':password,
@@ -55,26 +56,38 @@ def get_balance_information(session):
 def get_mutation_information(session, headers):
     end_date = datetime.now()
     start_date = end_date + timedelta(-7)
-    form_data={
-    'value(D1)': 0,
-    'value(r1)': 1,
-    'value(startDt)': start_date.day,
-    'value(startMt)': start_date.month,
-    'value(startYr)': start_date.year,
-    'value(endDt)': end_date.day,
-    'value(endMt)': end_date.month,
-    'value(endYr)': end_date.year,
-    'value(fDt)':0106,
-    'value(tDt)':3006,
+
+    form_data = {
+                    'value(D1)': 0,
+                    'value(r1)': 1,
+                    'value(startDt)': start_date.day,
+                    'value(startMt)': start_date.month,
+                    'value(startYr)': start_date.year,
+                    'value(endDt)': end_date.day,
+                    'value(endMt)': end_date.month,
+                    'value(endYr)': end_date.year,
+                    'value(fDt)': 0106,
+                    'value(tDt)': 3006,
     }
+
     session.get('https://ibank.klikbca.com/nav_bar/account_information_menu.htm', headers=headers)
-    statement_history = session.post('https://m.klikbca.com/accountstmt.do?value(actions)=acctstmtview' , headers={'referer':'https://m.klikbca.com/accountstmt.do?value(actions)=acct_stmt'}, params=form_data)
+    statement_history = session.post('https://m.klikbca.com/accountstmt.do?value(actions)=acctstmtview' , headers=headers, params=form_data)
     table_statement = bs(statement_history.content, 'html.parser')
+
     rekening_info_dict = {}
     mutation_summary_dict = {}
-
+    mutation_transaction_histories = {}
     try:
-        rekening_info = table_statement.findAll('table', {'class':'blue'})[0]
+        mutation_transaction_history = table_statement.findAll('table', {'class':'blue'})[1]
+        df = pd.read_html(str(mutation_transaction_history), flavor="lxml")[0]
+        df = df.iloc[:, :-1]
+
+        new_header = df.iloc[0]
+        df = df[1:]
+        df.columns = new_header
+        mutation_transaction_histories = df.to_dict('records')
+
+        rekening_info = table_statement.findAll('table', {'class': 'blue'})[0]
         rows = rekening_info.findAll('tr')
         lines = []
         for tr in rows:
@@ -85,7 +98,7 @@ def get_mutation_information(session, headers):
 
         for line in lines:
             if line == 'NO. REK.':
-                rekening_info_dict['No. Rek'] =lines[3]
+                rekening_info_dict['No. Rek'] = lines[3]
             if line == 'NAMA':
                 rekening_info_dict['Nama'] = lines[6]
             if line == 'PERIODE':
@@ -118,4 +131,4 @@ def get_mutation_information(session, headers):
         time.sleep(5)
         session.post('https://m.klikbca.com/authentication.do?value(actions)=logout')
 
-    return rekening_info_dict,mutation_summary_dict
+    return rekening_info_dict,  mutation_transaction_histories, mutation_summary_dict
