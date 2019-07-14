@@ -55,7 +55,7 @@ def get_balance_information(session):
 
 def get_mutation_information(session, headers):
     end_date = datetime.now()
-    start_date = end_date + timedelta(-7)
+    start_date = end_date + timedelta(-7) # change timedelta value to get start day transactions, ie -7 for 7 last day transaction.
 
     form_data = {
                     'value(D1)': 0,
