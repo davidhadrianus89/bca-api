@@ -35,7 +35,7 @@ def bca_balance_api():
                     return jsonify({'detail':'Something wrong, please try 5 minutes later'})
                 return jsonify({'Info rekening anda':balance_information})
             except:
-                pass
+                session.post('https://m.klikbca.com/authentication.do?value(actions)=logout')
             session.post('https://m.klikbca.com/authentication.do?value(actions)=logout')
         return jsonify({'detail': "Wrong Login Information"})
 
@@ -74,7 +74,7 @@ def bca_api_transaction():
                                 }
                            )
         except:
-            pass
+            session.post('https://m.klikbca.com/authentication.do?value(actions)=logout')
         session.post('https://m.klikbca.com/authentication.do?value(actions)=logout')
     return jsonify({'detail': "Wrong Login Information"})
 
