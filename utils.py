@@ -46,9 +46,11 @@ def get_balance_information(session):
                 dict_balance['No Rekening']=str(balance_information_table[4].text)
             elif td.text == 'SALDO EFEKTIF':
                 dict_balance['Sisa Saldo']=str(balance_information_table[6].text)
+        session.get('https://ibank.klikbca.com/nav_bar/account_information_menu.htm')
 
     except Exception as e:
         # todo: return proper message
+        session.get('https://ibank.klikbca.com/nav_bar/account_information_menu.htm')
         pass
     return dict_balance
 
